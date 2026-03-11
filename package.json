@@ -1,0 +1,16 @@
+{
+  "name": "ideogram-slack-bot",
+  "version": "1.0.0",
+  "description": "Slack bot that generates images via Ideogram API using /ideogram slash command",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "keywords": ["slack", "ideogram", "ai", "image-generation"],
+  "license": "MIT",
+  "dependencies": {
+    "@slack/bolt": "^4.1.0",
+    "dotenv": "^16.4.7"
+  }
+}
