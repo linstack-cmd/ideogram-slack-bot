@@ -86,6 +86,7 @@ function registerIdeogramCommand(app) {
   };
 
   app.command('/ideogram', handler);
+  app.command('/typography', handler);
 }
 
 function formatError(err) {
