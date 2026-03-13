@@ -102,6 +102,10 @@ function formatError(err) {
   if (err.name === 'AbortError') {
     return 'Image generation timed out. Try a simpler prompt or try again later.';
   }
+  const detail = err?.data?.error || err?.code || err?.message;
+  if (detail) {
+    return `Something went wrong generating your image (${detail}).`;
+  }
   return 'Something went wrong generating your image. Please try again.';
 }
 
