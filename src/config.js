@@ -11,6 +11,8 @@ const config = {
     renderSpeed: process.env.IDEOGRAM_RENDER_SPEED || 'TURBO',
     aspectRatio: process.env.IDEOGRAM_ASPECT_RATIO || 'ASPECT_1_1',
     model: process.env.IDEOGRAM_MODEL || 'V_2',
+    cfAccessClientId: process.env.CF_ACCESS_CLIENT_ID || '',
+    cfAccessClientSecret: process.env.CF_ACCESS_CLIENT_SECRET || '',
   },
   logLevel: process.env.LOG_LEVEL || 'info',
 };

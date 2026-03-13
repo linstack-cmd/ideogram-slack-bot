@@ -66,7 +66,16 @@ async function generateImage(prompt) {
  * @returns {Promise<Buffer>}
  */
 async function downloadImage(imageUrl) {
-  const res = await fetch(imageUrl, { redirect: 'follow' });
+  const headers = {};
+  if (config.ideogram.cfAccessClientId && config.ideogram.cfAccessClientSecret) {
+    headers['CF-Access-Client-Id'] = config.ideogram.cfAccessClientId;
+    headers['CF-Access-Client-Secret'] = config.ideogram.cfAccessClientSecret;
+  }
+
+  const res = await fetch(imageUrl, {
+    redirect: 'follow',
+    headers,
+  });
   if (!res.ok) {
     throw new IdeogramError(`Failed to download image: ${res.status}`);
   }
