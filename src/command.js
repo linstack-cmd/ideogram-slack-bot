@@ -2,11 +2,11 @@ const { generateImage, downloadImage, IdeogramError } = require('./ideogram');
 const logger = require('./logger');
 
 /**
- * Register the /ideogram slash command handler on the Bolt app.
+ * Register slash command handlers on the Bolt app.
  * @param {import('@slack/bolt').App} app
  */
 function registerIdeogramCommand(app) {
-  app.command('/ideogram', async ({ command, ack, client, respond }) => {
+  const handler = async ({ command, ack, client, respond }) => {
     // Acknowledge immediately (must happen within 3s)
     await ack();
 
@@ -30,7 +30,7 @@ function registerIdeogramCommand(app) {
     const channelId = command.channel_id;
     const userId = command.user_id;
 
-    logger.info(`/ideogram from user=${userId} channel=${channelId} prompt="${prompt.slice(0, 80)}..."`);
+    logger.info(`${command.command} from user=${userId} channel=${channelId} prompt="${prompt.slice(0, 80)}..."`);
 
     // Post a "generating" message
     let statusMsg;
@@ -83,7 +83,11 @@ function registerIdeogramCommand(app) {
         await respond({ response_type: 'ephemeral', text: `❌ ${userMessage}` });
       }
     }
-  });
+  };
+
+  // Support both command names for convenience
+  app.command('/ideogram', handler);
+  app.command('/ideogram-generate', handler);
 }
 
 function formatError(err) {
