@@ -71,6 +71,50 @@ function registerIdeogramCommand(app) {
 
   app.command('/ideogram', handler);
   app.command('/typography', handler);
+
+  // Thread-friendly fallback: mention the bot with a prompt.
+  app.event('app_mention', async ({ event, client }) => {
+    const channelId = event.channel;
+    const userId = event.user;
+    const threadTs = event.thread_ts || event.ts;
+    const prompt = (event.text || '').replace(/<@[^>]+>/g, '').trim();
+
+    if (!prompt) {
+      await client.chat.postMessage({
+        channel: channelId,
+        thread_ts: threadTs,
+        text: '⚠️ Please include a prompt after mentioning me. Example: `@typography_generator neon cyberpunk logo`',
+      }).catch(() => {});
+      return;
+    }
+
+    await client.chat.postMessage({
+      channel: channelId,
+      thread_ts: threadTs,
+      text: '🎨 Got it — generating now…',
+    }).catch(() => {});
+
+    try {
+      const { url: imageUrl } = await generateImage(prompt);
+      logger.info('Image generated (mention)', { imageUrl: imageUrl.slice(0, 100) });
+
+      const imageBuffer = await downloadImage(imageUrl);
+      logger.info('Image downloaded (mention)', { bytes: imageBuffer.length });
+
+      await ensureBotInChannel(client, channelId);
+      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId, threadTs);
+
+      logger.info('Image uploaded to Slack (mention)');
+    } catch (err) {
+      logger.error('Generation failed (mention)', { error: err.message, statusCode: err.statusCode });
+      const userMessage = formatError(err);
+      await client.chat.postMessage({
+        channel: channelId,
+        thread_ts: threadTs,
+        text: `❌ ${userMessage}`,
+      }).catch(() => {});
+    }
+  });
 }
 
 async function ensureBotInChannel(client, channelId) {

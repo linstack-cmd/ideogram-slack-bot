@@ -40,6 +40,7 @@ Go to **OAuth & Permissions → Scopes → Bot Token Scopes** and add:
 | `files:write` | Upload generated images |
 | `channels:join` | Auto-join public channels before posting |
 | `channels:read` | Read channel metadata for join/post flows |
+| `app_mentions:read` | Enable `@bot` prompt fallback (great for threads) |
 
 ### 4. Create the Slash Command
 
@@ -52,6 +53,13 @@ Go to **Slash Commands** → **Create New Command**:
 | Usage Hint | `a cat riding a bicycle in watercolor style` |
 
 > **Note:** In Socket Mode, you do **not** need a Request URL — leave it blank or enter any placeholder.
+
+### 4.5 Enable @mention fallback (optional, recommended for threads)
+
+Go to **Event Subscriptions** and enable bot event:
+- `app_mention`
+
+This allows prompts like `@typography_generator make a poster...` and works well inside threads where slash command UI may be limited.
 
 ### 5. Install to Workspace
 
