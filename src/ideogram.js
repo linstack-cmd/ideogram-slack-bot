@@ -13,6 +13,8 @@ async function generateImage(prompt) {
     ? {
         prompt,
         custom_model_uri: config.ideogram.customModelUri,
+        rendering_speed: 'TURBO',
+        magic_prompt: 'ON',
       }
     : {
         image_request: {
