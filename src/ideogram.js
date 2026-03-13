@@ -66,10 +66,23 @@ async function generateImage(prompt) {
  * @returns {Promise<Buffer>}
  */
 async function downloadImage(imageUrl) {
-  const res = await fetch(imageUrl);
+  const res = await fetch(imageUrl, { redirect: 'follow' });
   if (!res.ok) {
     throw new IdeogramError(`Failed to download image: ${res.status}`);
   }
+
+  const contentType = (res.headers.get('content-type') || '').toLowerCase();
+  if (!contentType.startsWith('image/')) {
+    const finalUrl = res.url || imageUrl;
+    const hostHint = finalUrl.includes('cloudflareaccess.com') || finalUrl.includes('/cdn-cgi/access/login')
+      ? ' (Cloudflare Access protected URL)'
+      : '';
+    throw new IdeogramError(
+      `Generated image URL is not publicly fetchable${hostHint}. Final content-type was '${contentType || 'unknown'}'.`,
+      502,
+    );
+  }
+
   const arrayBuf = await res.arrayBuffer();
   return Buffer.from(arrayBuf);
 }
