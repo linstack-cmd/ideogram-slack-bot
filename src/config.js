@@ -7,7 +7,7 @@ const config = {
   },
   ideogram: {
     apiKey: process.env.IDEOGRAM_API_KEY,
-    baseUrl: 'https://api.ideogram.ai',
+    baseUrl: process.env.IDEOGRAM_BASE_URL || 'https://api.ideogram.ai',
     renderSpeed: process.env.IDEOGRAM_RENDER_SPEED || 'TURBO',
     aspectRatio: process.env.IDEOGRAM_ASPECT_RATIO || 'ASPECT_1_1',
     model: process.env.IDEOGRAM_MODEL || 'V_2',

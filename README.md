@@ -77,6 +77,7 @@ Edit `.env` with your credentials:
 SLACK_BOT_TOKEN=xoxb-your-bot-token
 SLACK_APP_TOKEN=xapp-your-app-token
 IDEOGRAM_API_KEY=your-ideogram-api-key
+IDEOGRAM_BASE_URL=https://api.ideogram.ai
 
 # Optional
 IDEOGRAM_RENDER_SPEED=TURBO        # TURBO | QUALITY | DEFAULT
