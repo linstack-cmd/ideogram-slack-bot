@@ -76,23 +76,21 @@ function registerIdeogramCommand(app) {
   app.event('app_mention', async ({ event, client }) => {
     const channelId = event.channel;
     const userId = event.user;
-    const threadTs = event.thread_ts || event.ts;
+    const mentionTs = event.ts;
+    const replyThreadTs = event.thread_ts || undefined;
     const prompt = (event.text || '').replace(/<@[^>]+>/g, '').trim();
 
     if (!prompt) {
       await client.chat.postMessage({
         channel: channelId,
-        thread_ts: threadTs,
+        ...(replyThreadTs ? { thread_ts: replyThreadTs } : {}),
         text: '⚠️ Please include a prompt after mentioning me. Example: `@typography_generator neon cyberpunk logo`',
       }).catch(() => {});
       return;
     }
 
-    await client.chat.postMessage({
-      channel: channelId,
-      thread_ts: threadTs,
-      text: '🎨 Got it — generating now…',
-    }).catch(() => {});
+    // Progress indicator via reaction (best-effort)
+    await setProgressReaction(client, channelId, mentionTs, true);
 
     try {
       const { url: imageUrl } = await generateImage(prompt);
@@ -102,7 +100,7 @@ function registerIdeogramCommand(app) {
       logger.info('Image downloaded (mention)', { bytes: imageBuffer.length });
 
       await ensureBotInChannel(client, channelId);
-      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId, threadTs);
+      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId, replyThreadTs);
 
       logger.info('Image uploaded to Slack (mention)');
     } catch (err) {
@@ -110,9 +108,11 @@ function registerIdeogramCommand(app) {
       const userMessage = formatError(err);
       await client.chat.postMessage({
         channel: channelId,
-        thread_ts: threadTs,
+        ...(replyThreadTs ? { thread_ts: replyThreadTs } : {}),
         text: `❌ ${userMessage}`,
       }).catch(() => {});
+    } finally {
+      await setProgressReaction(client, channelId, mentionTs, false);
     }
   });
 }
@@ -158,6 +158,31 @@ async function uploadImageToChannel(client, channelId, imageBuffer, prompt, user
       return;
     }
     throw err;
+  }
+}
+
+async function setProgressReaction(client, channelId, ts, active) {
+  try {
+    if (active) {
+      await client.reactions.add({ channel: channelId, timestamp: ts, name: 'hourglass_flowing_sand' });
+    } else {
+      await client.reactions.remove({ channel: channelId, timestamp: ts, name: 'hourglass_flowing_sand' });
+    }
+  } catch (err) {
+    const code = err?.data?.error || err?.code || err?.message;
+    const ignorable = [
+      'already_reacted',
+      'no_reaction',
+      'missing_scope',
+      'not_in_channel',
+      'channel_not_found',
+      'message_not_found',
+    ];
+    if (ignorable.includes(code)) {
+      logger.info('progress reaction skipped', { code, active });
+      return;
+    }
+    logger.warn('progress reaction failed', { code, active });
   }
 }
 

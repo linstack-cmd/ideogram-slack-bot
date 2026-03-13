@@ -41,6 +41,7 @@ Go to **OAuth & Permissions → Scopes → Bot Token Scopes** and add:
 | `channels:join` | Auto-join public channels before posting |
 | `channels:read` | Read channel metadata for join/post flows |
 | `app_mentions:read` | Enable `@bot` prompt fallback (great for threads) |
+| `reactions:write` | Add/remove progress reaction on mention message |
 
 ### 4. Create the Slash Command
 
