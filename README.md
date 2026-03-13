@@ -38,6 +38,8 @@ Go to **OAuth & Permissions → Scopes → Bot Token Scopes** and add:
 | `chat:write` | Post messages and progress updates |
 | `commands` | Handle slash commands |
 | `files:write` | Upload generated images |
+| `channels:join` | Auto-join public channels before posting |
+| `channels:read` | Read channel metadata for join/post flows |
 
 ### 4. Create the Slash Command
 

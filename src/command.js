@@ -47,14 +47,11 @@ function registerIdeogramCommand(app) {
       const imageBuffer = await downloadImage(imageUrl);
       logger.info('Image downloaded', { bytes: imageBuffer.length });
 
+      // Ensure bot is in the channel (auto-join works for public channels)
+      await ensureBotInChannel(client, channelId);
+
       // Upload to Slack
-      await client.filesUploadV2({
-        channel_id: channelId,
-        file: imageBuffer,
-        filename: 'ideogram.png',
-        title: prompt.slice(0, 200),
-        initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
-      });
+      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId);
 
       // Remove the "generating" status message
       if (statusMsg?.ts) {
@@ -75,6 +72,53 @@ function registerIdeogramCommand(app) {
   app.command('/typography', handler);
 }
 
+async function ensureBotInChannel(client, channelId) {
+  try {
+    await client.conversations.join({ channel: channelId });
+  } catch (err) {
+    const code = err?.data?.error || err?.code || err?.message;
+    // Ignore unsupported/private/DM cases — upload attempt will still run and provide real error if needed.
+    if (code && [
+      'method_not_supported_for_channel_type',
+      'already_in_channel',
+      'channel_not_found',
+      'missing_scope',
+    ].includes(code)) {
+      logger.info('conversations.join skipped', { channelId, code });
+      return;
+    }
+    logger.warn('conversations.join failed', { channelId, code });
+  }
+}
+
+async function uploadImageToChannel(client, channelId, imageBuffer, prompt, userId) {
+  try {
+    await client.filesUploadV2({
+      channel_id: channelId,
+      file: imageBuffer,
+      filename: 'ideogram.png',
+      title: prompt.slice(0, 200),
+      initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
+    });
+    return;
+  } catch (err) {
+    const code = err?.data?.error || err?.code || err?.message;
+    // Retry once after a join attempt when bot is not yet in public channel.
+    if (code === 'not_in_channel') {
+      await ensureBotInChannel(client, channelId);
+      await client.filesUploadV2({
+        channel_id: channelId,
+        file: imageBuffer,
+        filename: 'ideogram.png',
+        title: prompt.slice(0, 200),
+        initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
+      });
+      return;
+    }
+    throw err;
+  }
+}
+
 function formatError(err) {
   if (err instanceof IdeogramError) {
     if (err.statusCode === 429) {
@@ -89,6 +133,9 @@ function formatError(err) {
     return 'Image generation timed out. Try a simpler prompt or try again later.';
   }
   const detail = err?.data?.error || err?.code || err?.message;
+  if (detail === 'not_in_channel') {
+    return 'I am not in that channel yet. For private channels, invite me first (`/invite @typography_generator`).';
+  }
   if (detail) {
     return `Something went wrong generating your image (${detail}).`;
   }
