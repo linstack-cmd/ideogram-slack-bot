@@ -62,6 +62,19 @@ Go to **Event Subscriptions** and enable bot event:
 
 This allows prompts like `@typography_generator make a poster...` and works well inside threads where slash command UI may be limited.
 
+### 4.6 Known Slack thread limitation (custom slash commands)
+
+Custom slash commands created by apps are not supported in thread composers.
+
+- Built-in commands (and `/giphy`) may appear in threads, but app-defined commands often do not.
+- Use `@mention` fallback (recommended) for thread-first UX.
+
+References:
+- Official docs: <https://docs.slack.dev/interactivity/implementing-slash-commands/>
+- Legacy docs: <https://api.slack.com/interactivity/slash-commands>
+- Community discussion (StackOverflow): <https://stackoverflow.com/questions/65343487/how-can-i-use-custom-slash-commands-within-threads-in-slack>
+- Community report (Pipedream): <https://pipedream.com/community/t/how-to-make-slash-command-slack-bot-work-in-threads/6771>
+
 ### 5. Install to Workspace
 
 Go to **Install App** → **Install to Workspace** → authorize. Copy the **Bot User OAuth Token** as `SLACK_BOT_TOKEN` (starts with `xoxb-`).
