@@ -32,6 +32,7 @@ function registerIdeogramCommand(app) {
 
     const channelId = command.channel_id;
     const userId = command.user_id;
+    const threadTs = command.thread_ts || command.message_ts || undefined;
 
     logger.info(`${command.command} from user=${userId} channel=${channelId} prompt="${prompt.slice(0, 80)}..."`);
 
@@ -51,7 +52,7 @@ function registerIdeogramCommand(app) {
       await ensureBotInChannel(client, channelId);
 
       // Upload to Slack
-      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId);
+      await uploadImageToChannel(client, channelId, imageBuffer, prompt, userId, threadTs);
 
       // Remove the "generating" status message
       if (statusMsg?.ts) {
@@ -91,28 +92,25 @@ async function ensureBotInChannel(client, channelId) {
   }
 }
 
-async function uploadImageToChannel(client, channelId, imageBuffer, prompt, userId) {
+async function uploadImageToChannel(client, channelId, imageBuffer, prompt, userId, threadTs) {
+  const payload = {
+    channel_id: channelId,
+    file: imageBuffer,
+    filename: 'ideogram.png',
+    title: prompt.slice(0, 200),
+    initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
+    ...(threadTs ? { thread_ts: threadTs } : {}),
+  };
+
   try {
-    await client.filesUploadV2({
-      channel_id: channelId,
-      file: imageBuffer,
-      filename: 'ideogram.png',
-      title: prompt.slice(0, 200),
-      initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
-    });
+    await client.filesUploadV2(payload);
     return;
   } catch (err) {
     const code = err?.data?.error || err?.code || err?.message;
     // Retry once after a join attempt when bot is not yet in public channel.
     if (code === 'not_in_channel') {
       await ensureBotInChannel(client, channelId);
-      await client.filesUploadV2({
-        channel_id: channelId,
-        file: imageBuffer,
-        filename: 'ideogram.png',
-        title: prompt.slice(0, 200),
-        initial_comment: `🎨 *<@${userId}>*: _${escapeSlack(prompt.slice(0, 500))}_`,
-      });
+      await client.filesUploadV2(payload);
       return;
     }
     throw err;
