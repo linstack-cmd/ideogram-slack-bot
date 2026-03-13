@@ -83,6 +83,7 @@ IDEOGRAM_BASE_URL=https://api.ideogram.ai
 IDEOGRAM_RENDER_SPEED=TURBO        # TURBO | QUALITY | DEFAULT
 IDEOGRAM_ASPECT_RATIO=ASPECT_1_1   # ASPECT_1_1, ASPECT_16_9, ASPECT_9_16, etc.
 IDEOGRAM_MODEL=V_2                  # V_1, V_1_TURBO, V_2, V_2_TURBO, V_2A, V_2A_TURBO
+IDEOGRAM_CUSTOM_MODEL_URI=model/_vEtS-iCTVWow-2WZvm11g/version/0
 CF_ACCESS_CLIENT_ID=                # optional (Cloudflare Access-protected image URLs)
 CF_ACCESS_CLIENT_SECRET=            # optional (Cloudflare Access-protected image URLs)
 LOG_LEVEL=info                      # debug | info | warn | error

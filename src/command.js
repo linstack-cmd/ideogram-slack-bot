@@ -8,7 +8,10 @@ const logger = require('./logger');
 function registerIdeogramCommand(app) {
   const handler = async ({ command, ack, client, respond }) => {
     // Acknowledge immediately (must happen within 3s)
-    await ack();
+    await ack({
+      response_type: 'ephemeral',
+      text: '🎨 Got it — generating now…',
+    });
 
     const prompt = (command.text || '').trim();
     if (!prompt) {
@@ -32,16 +35,8 @@ function registerIdeogramCommand(app) {
 
     logger.info(`${command.command} from user=${userId} channel=${channelId} prompt="${prompt.slice(0, 80)}..."`);
 
-    // Post a "generating" message
+    // Optional status message in-channel (best-effort)
     let statusMsg;
-    try {
-      statusMsg = await client.chat.postMessage({
-        channel: channelId,
-        text: `🎨 <@${userId}> is generating: _${escapeSlack(prompt.slice(0, 200))}${prompt.length > 200 ? '…' : ''}_\n⏳ Working on it…`,
-      });
-    } catch (err) {
-      logger.error('Failed to post status message', { error: err.message });
-    }
 
     try {
       // Generate
@@ -72,16 +67,7 @@ function registerIdeogramCommand(app) {
 
       const userMessage = formatError(err);
 
-      // Update the status message with the error, or post new
-      if (statusMsg?.ts) {
-        await client.chat.update({
-          channel: channelId,
-          ts: statusMsg.ts,
-          text: `❌ ${userMessage}`,
-        }).catch(() => {});
-      } else {
-        await respond({ response_type: 'ephemeral', text: `❌ ${userMessage}` });
-      }
+      await respond({ response_type: 'ephemeral', text: `❌ ${userMessage}` });
     }
   };
 

@@ -11,6 +11,7 @@ const config = {
     renderSpeed: process.env.IDEOGRAM_RENDER_SPEED || 'TURBO',
     aspectRatio: process.env.IDEOGRAM_ASPECT_RATIO || 'ASPECT_1_1',
     model: process.env.IDEOGRAM_MODEL || 'V_2',
+    customModelUri: process.env.IDEOGRAM_CUSTOM_MODEL_URI || 'model/_vEtS-iCTVWow-2WZvm11g/version/0',
     cfAccessClientId: process.env.CF_ACCESS_CLIENT_ID || '',
     cfAccessClientSecret: process.env.CF_ACCESS_CLIENT_SECRET || '',
   },

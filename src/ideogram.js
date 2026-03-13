@@ -13,6 +13,7 @@ async function generateImage(prompt) {
     image_request: {
       prompt,
       model: config.ideogram.model,
+      custom_model_uri: config.ideogram.customModelUri,
       aspect_ratio: config.ideogram.aspectRatio,
       rendering_speed: config.ideogram.renderSpeed,
     },
