@@ -85,9 +85,7 @@ function registerIdeogramCommand(app) {
     }
   };
 
-  // Support both command names for convenience
   app.command('/ideogram', handler);
-  app.command('/ideogram-generate', handler);
 }
 
 function formatError(err) {
