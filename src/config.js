@@ -16,6 +16,7 @@ const config = {
     samplingSpeed: Number(process.env.IDEOGRAM_SAMPLING_SPEED || '-2'),
     useAutopromptOption: process.env.IDEOGRAM_USE_AUTOPROMPT_OPTION || 'ON',
     styleType: process.env.IDEOGRAM_STYLE_TYPE || 'AUTO',
+    apiFormat: process.env.IDEOGRAM_API_FORMAT || 'legacy',
     cfAccessClientId: process.env.CF_ACCESS_CLIENT_ID || '',
     cfAccessClientSecret: process.env.CF_ACCESS_CLIENT_SECRET || '',
   },

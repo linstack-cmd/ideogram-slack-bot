@@ -9,12 +9,17 @@ const logger = require('./logger');
 async function generateImage(prompt) {
   const url = `${config.ideogram.baseUrl}/generate`;
 
-  const body = {
-    image_request: {
-      prompt,
-      custom_model_uri: config.ideogram.customModelUri,
-    },
-  };
+  const body = config.ideogram.apiFormat === 'v1'
+    ? {
+        prompt,
+        custom_model_uri: config.ideogram.customModelUri,
+      }
+    : {
+        image_request: {
+          prompt,
+          custom_model_uri: config.ideogram.customModelUri,
+        },
+      };
 
   logger.debug('Ideogram request', { url, body });
 

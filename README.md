@@ -88,6 +88,7 @@ IDEOGRAM_MODEL_VERSION=V_3_1
 IDEOGRAM_SAMPLING_SPEED=-2
 IDEOGRAM_USE_AUTOPROMPT_OPTION=ON
 IDEOGRAM_STYLE_TYPE=AUTO
+IDEOGRAM_API_FORMAT=legacy          # legacy | v1
 CF_ACCESS_CLIENT_ID=                # optional (Cloudflare Access-protected image URLs)
 CF_ACCESS_CLIENT_SECRET=            # optional (Cloudflare Access-protected image URLs)
 LOG_LEVEL=info                      # debug | info | warn | error
